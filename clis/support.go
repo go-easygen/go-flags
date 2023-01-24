@@ -8,6 +8,8 @@ package clis
 
 import (
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -60,6 +62,46 @@ func Basename(s string) string {
 func IsExist(fileName string) bool {
 	_, err := os.Stat(fileName)
 	return err == nil || os.IsExist(err)
+}
+
+// ReadInput reads from the given file name (or "-" for stdin)
+// and abort the program if error occurs.
+func ReadInput(fileName string) []byte {
+	var data []byte
+	var err error
+	if fileName == "-" {
+		data, err = ioutil.ReadAll(os.Stdin)
+	} else {
+		data, err = ioutil.ReadFile(fileName)
+	}
+	AbortOn("ReadInput", err)
+	return data
+}
+
+// GetInputStream will return the file reading handler to the given file,
+// or stdin for "-".
+// It'll abort the program if error occurs.
+func GetInputStream(fileName string) io.ReadCloser {
+	if fileName == "-" {
+		return os.Stdin
+	}
+	// open input file instead
+	file, err := os.Open(fileName)
+	AbortOn("GetInputStream", err)
+	return file
+}
+
+// GetOutputStream will return the file writing handler to the given file,
+// or stdout for "-".
+// It'll abort the program if error occurs.
+func GetOutputStream(fileName string) io.WriteCloser {
+	if fileName == "-" {
+		return os.Stdout
+	}
+	// open output file instead
+	file, err := os.Create(fileName)
+	AbortOn("GetOutputStream", err)
+	return file
 }
 
 // Warning will print the given string as a Warning
