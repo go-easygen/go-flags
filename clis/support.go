@@ -9,7 +9,6 @@ package clis
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -70,9 +69,9 @@ func ReadInput(fileName string) []byte {
 	var data []byte
 	var err error
 	if fileName == "-" {
-		data, err = ioutil.ReadAll(os.Stdin)
+		data, err = io.ReadAll(os.Stdin)
 	} else {
-		data, err = ioutil.ReadFile(fileName)
+		data, err = os.ReadFile(fileName)
 	}
 	AbortOn("ReadInput", err)
 	return data
@@ -113,7 +112,7 @@ func Warning(m string) {
 // and retur true if so.
 // For a suggested format of "ActionName, step name", the output would be
 //
-//   [progname] Warning: ActionName, step name, sql: Rows are closed
+//	[progname] Warning: ActionName, step name, sql: Rows are closed
 func WarnOn(errCase string, e error) bool {
 	if e != nil {
 		fmt.Fprintf(os.Stderr, "[%s] %s: %s, %v\n",
